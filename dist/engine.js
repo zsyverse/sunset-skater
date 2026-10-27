@@ -1,9 +1,12 @@
+import {CHALLENGES,buildChallenge} from './challenges.js?v=3';
 export const ROUTES=[
  {name:'落日海岸',en:'SUNSET COAST',length:9000,speed:280,sky:['#f7ce9c','#fbe7b7'],sea:'#8eb9a5',far:'#8ba99a',hill:'#618b76',dark:'#2e5848'},
  {name:'橘子小镇',en:'TANGERINE TOWN',length:10500,speed:305,sky:['#eeb093','#f5d6a0'],sea:'#a2b6a0',far:'#b29b84',hill:'#897a5b',dark:'#4d6049'},
- {name:'蓝调山路',en:'BLUE HOUR',length:12000,speed:325,sky:['#546f8b','#b6b7b3'],sea:'#718e99',far:'#647e86',hill:'#496873',dark:'#263f49'}
+ {name:'蓝调山路',en:'BLUE HOUR',length:12000,speed:325,sky:['#546f8b','#b6b7b3'],sea:'#718e99',far:'#647e86',hill:'#496873',dark:'#263f49'},
+ ...CHALLENGES
 ];
 export function makeLevel(index=0){
+ if(index>=3)return buildChallenge(ROUTES[index],index);
  const r=ROUTES[index],block=r.length/3,gaps=[],obstacles=[],ramps=[],stars=[],gates=[],rails=[];
  const addStar=(x,y)=>stars.push({id:stars.length,x,y});
  const arc=(x,w,h,n)=>{for(let j=0;j<n;j++)addStar(x+j*w/(n-1),470-h-Math.sin(j/(n-1)*Math.PI)*54);};
@@ -56,7 +59,7 @@ export class Run{
    if(this.vy>=0&&this.railLock===0){for(const rail of this.level.rails){if(this.x>=rail.x-8&&this.x<=rail.x+rail.w&&oldY<=rail.y+6&&this.y>=rail.y){this.y=rail.y;this.vy=0;this.rail=rail;this.grounded=false;this.events.push({type:'grind'});break;}}}
    if(!this.rail&&ground!==null&&this.vy>=0&&oldY<=ground+8&&this.y>=ground){this.y=ground;this.vy=0;this.grounded=true;this.airTime=0;this.landPulse=1;this.events.push({type:'land'});}
   }
-  if(this.y>680){this.crash('断崖需要提前蓄力，松开跳跃后再越过缺口。');return;}
+  if(this.y>680){this.crash(this.level.hard?'长断桥必须借助栏杆；橙色杆尾要再次起跳，接到下一根杆。':'断崖需要提前蓄力，松开跳跃后再越过缺口。');return;}
   for(const o of this.level.obstacles){const gy=groundAt(this.level,o.x)??470;if(this.x+13>o.x&&this.x-13<o.x+o.w&&this.y>gy-o.h+5&&this.y-this.bodyHeight<gy){this.crash();return;}}
   for(const g of this.level.gates){if(this.x+14>g.x&&this.x-14<g.x+g.w&&this.y>g.top&&this.y-this.bodyHeight<g.bottom){this.crash('横杆和低枝要下蹲通过：按住 ↓ / S 或「滑行」，完全离开再松手。');return;}}
   for(const s of this.level.stars){if(!this.collected.has(s.id)&&Math.hypot(this.x-s.x,this.y-(this.sliding?25:42)-s.y)<44){this.collected.add(s.id);this.score+=10;this.events.push({type:'star',x:s.x,y:s.y});}}
@@ -64,7 +67,7 @@ export class Run{
   for(const cp of this.level.checkpoints){if(oldX<cp&&this.x>=cp){this.checkpoint={x:cp,stars:[...this.collected],cleared:[...this.cleared],score:this.score,grindDistance:this.grindDistance,slideCount:this.slideCount};this.events.push({type:'checkpoint'});}}
   if(this.x>=this.level.length){this.x=this.level.length;this.state='won';this.cancelInput();this.events.push({type:'win'});}
  }
- get nextAction(){if(this.grinding)return {kind:'grinding',distance:0};const rail=this.level.rails.find(r=>r.x>this.x+15&&r.x-this.x<470);const h=this.level.hazards.find(h=>h.x+h.w+16>this.x&&!this.cleared.has(h.id));if(rail&&(!h||rail.x<h.x))return{kind:'rail',distance:Math.max(0,Math.round((rail.x-this.x)/10))};return h?{kind:h.kind,distance:Math.max(0,Math.round((h.x-this.x)/10))}:null;}
+ get nextAction(){if(this.grinding)return this.rail.transfer?{kind:'transfer',distance:Math.max(0,Math.round((this.rail.x+this.rail.w-this.x)/10))}:{kind:'grinding',distance:0};const rail=this.level.rails.find(r=>r.x>this.x+15&&r.x-this.x<470);const h=this.level.hazards.find(h=>h.x+h.w+16>this.x&&!this.cleared.has(h.id));if(rail&&(!h||rail.x<h.x))return{kind:'rail',distance:Math.max(0,Math.round((rail.x-this.x)/10))};return h?{kind:h.kind,distance:Math.max(0,Math.round((h.x-this.x)/10))}:null;}
  get distance(){return Math.max(0,Math.floor((this.x-160)/10));}
  get progress(){return Math.max(0,(this.x-160)/(this.level.length-160));}
 }
