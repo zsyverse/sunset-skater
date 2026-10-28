@@ -1,4 +1,5 @@
-import {CHALLENGES,buildChallenge} from './challenges.js?v=3';
+import {movingPose,movingHit} from './movers.js?v=4';
+import {CHALLENGES,buildChallenge} from './challenges.js?v=4';
 export const ROUTES=[
  {name:'落日海岸',en:'SUNSET COAST',length:9000,speed:280,sky:['#f7ce9c','#fbe7b7'],sea:'#8eb9a5',far:'#8ba99a',hill:'#618b76',dark:'#2e5848'},
  {name:'橘子小镇',en:'TANGERINE TOWN',length:10500,speed:305,sky:['#eeb093','#f5d6a0'],sea:'#a2b6a0',far:'#b29b84',hill:'#897a5b',dark:'#4d6049'},
@@ -33,24 +34,25 @@ export function makeLevel(index=0){
 export function groundAt(level,x){if(level.gaps.some(g=>x>=g.x&&x<g.x+g.w))return null;let y=470;for(const r of level.ramps)if(x>=r.x&&x<=r.x+r.w)y-=Math.sin((x-r.x)/r.w*Math.PI)*r.h;return y;}
 export class Run{
  constructor(index=0){this.level=makeLevel(index);this.reset();}
- reset(){this.x=160;this.y=470;this.vy=0;this.grounded=true;this.coyote=.1;this.charge=0;this.holding=false;this.duckHeld=false;this.rail=null;this.railLock=0;this.collected=new Set();this.cleared=new Set();this.score=0;this.combo=0;this.maxCombo=0;this.grindDistance=0;this.slideCount=0;this.checkpoint={x:160,stars:[],cleared:[],score:0,grindDistance:0,slideCount:0};this.state='ready';this.events=[];this.elapsed=0;this.deaths=0;this.airTime=0;this.landPulse=0;this.crashReason='';}
+ reset(){this.x=160;this.y=470;this.speed=this.level.speed;this.brakeHeld=false;this.vy=0;this.grounded=true;this.coyote=.1;this.charge=0;this.holding=false;this.duckHeld=false;this.rail=null;this.railLock=0;this.collected=new Set();this.cleared=new Set();this.score=0;this.combo=0;this.maxCombo=0;this.grindDistance=0;this.slideCount=0;this.checkpoint={x:160,stars:[],cleared:[],score:0,grindDistance:0,slideCount:0};this.state='ready';this.events=[];this.elapsed=0;this.deaths=0;this.airTime=0;this.landPulse=0;this.crashReason='';}
  start(){this.state='playing';}
  get grinding(){return this.rail!==null;}
  get sliding(){return this.duckHeld&&this.grounded&&!this.grinding;}
  get bodyHeight(){return this.sliding?51:118;}
  press(){if(this.state==='playing'&&(this.grounded||this.grinding||this.coyote>0)){this.holding=true;this.charge=0;}}
  release(){if(this.state!=='playing')return;if(this.holding&&(this.grounded||this.grinding||this.coyote>0)){this.vy=-(570+240*this.charge);this.grounded=false;this.rail=null;this.railLock=.18;this.coyote=0;this.airTime=0;this.events.push({type:'jump',charge:this.charge});}this.cancelJump();}
+ setBrake(on){this.brakeHeld=this.state==='playing'&&on;}
  setDuck(on){this.duckHeld=this.state==='playing'&&on;}
  cancelJump(){this.holding=false;this.charge=0;}
- cancelInput(){this.cancelJump();this.duckHeld=false;}
+ cancelInput(){this.cancelJump();this.duckHeld=false;this.brakeHeld=false;}
  pause(){if(this.state==='playing'){this.state='paused';this.cancelInput();}}
  resume(){if(this.state==='paused')this.state='playing';}
- retry(){this.x=this.checkpoint.x;this.y=groundAt(this.level,this.x)??470;this.vy=0;this.grounded=true;this.coyote=.1;this.rail=null;this.railLock=0;this.cancelInput();this.collected=new Set(this.checkpoint.stars);this.cleared=new Set(this.checkpoint.cleared||[]);this.score=this.checkpoint.score||0;this.grindDistance=this.checkpoint.grindDistance||0;this.slideCount=this.checkpoint.slideCount||0;this.combo=0;this.state='playing';this.events=[];this.airTime=0;}
+ retry(){this.x=this.checkpoint.x;this.speed=this.level.speed;this.elapsed=this.checkpoint.elapsed||0;this.y=groundAt(this.level,this.x)??470;this.vy=0;this.grounded=true;this.coyote=.1;this.rail=null;this.railLock=0;this.cancelInput();this.collected=new Set(this.checkpoint.stars);this.cleared=new Set(this.checkpoint.cleared||[]);this.score=this.checkpoint.score||0;this.grindDistance=this.checkpoint.grindDistance||0;this.slideCount=this.checkpoint.slideCount||0;this.combo=0;this.state='playing';this.events=[];this.airTime=0;}
  crash(reason='提前跳过地面障碍；连续箱阵可以借助上方栏杆通过。'){if(this.state!=='playing')return;this.state='crashed';this.deaths++;this.combo=0;this.crashReason=reason;this.cancelInput();this.events.push({type:'crash'});}
  reward(kind,id){if(this.cleared.has(id))return;this.cleared.add(id);this.combo++;this.maxCombo=Math.max(this.maxCombo,this.combo);const points=(kind==='grind'?150:50)*Math.min(5,this.combo);this.score+=points;if(kind==='slide')this.slideCount++;this.events.push({type:'clear',kind,points,combo:this.combo});}
  step(dt){
   if(this.state!=='playing')return;this.elapsed+=dt;this.landPulse=Math.max(0,this.landPulse-dt*4);this.railLock=Math.max(0,this.railLock-dt);if(this.holding)this.charge=Math.min(1,this.charge+dt/.55);
-  const oldX=this.x,oldY=this.y;this.x+=this.level.speed*dt;const ground=groundAt(this.level,this.x);
+  const oldX=this.x,oldY=this.y;if(this.grounded){const target=this.brakeHeld?0:this.level.speed;this.speed+=Math.sign(target-this.speed)*Math.min(Math.abs(target-this.speed),2000*dt);}this.x+=this.speed*dt;const ground=groundAt(this.level,this.x);
   if(this.rail){this.grindDistance+=this.x-oldX;this.y=this.rail.y;this.vy=0;if(this.x>this.rail.x+this.rail.w){this.reward('grind',`rail-${this.rail.id}`);this.rail=null;this.grounded=false;this.coyote=.09;}}
   else if(this.grounded&&ground!==null){this.y=ground;this.coyote=.09;}
   else{
@@ -62,12 +64,13 @@ export class Run{
   if(this.y>680){this.crash(this.level.hard?'长断桥必须借助栏杆；橙色杆尾要再次起跳，接到下一根杆。':'断崖需要提前蓄力，松开跳跃后再越过缺口。');return;}
   for(const o of this.level.obstacles){const gy=groundAt(this.level,o.x)??470;if(this.x+13>o.x&&this.x-13<o.x+o.w&&this.y>gy-o.h+5&&this.y-this.bodyHeight<gy){this.crash();return;}}
   for(const g of this.level.gates){if(this.x+14>g.x&&this.x-14<g.x+g.w&&this.y>g.top&&this.y-this.bodyHeight<g.bottom){this.crash('横杆和低枝要下蹲通过：按住 ↓ / S 或「滑行」，完全离开再松手。');return;}}
+  for(const m of this.level.movers||[]){if(movingHit(movingPose(m,this.elapsed),this)){this.crash({shutter:'闸门红灯时按住 ← / A 刹车，等绿灯再松开通过。不要在门下起跳。',tire:'滚动轮胎会来回移动，提前观察位置，再起跳越过。',swing:'摆锤会扫过站立高度，按住 ↓ / S 低头滑过，或刹车等它摆开。'}[m.type]);return;}}
   for(const s of this.level.stars){if(!this.collected.has(s.id)&&Math.hypot(this.x-s.x,this.y-(this.sliding?25:42)-s.y)<44){this.collected.add(s.id);this.score+=10;this.events.push({type:'star',x:s.x,y:s.y});}}
   for(const h of this.level.hazards)if(oldX<h.x+h.w+16&&this.x>=h.x+h.w+16)this.reward(h.kind,h.id);
-  for(const cp of this.level.checkpoints){if(oldX<cp&&this.x>=cp){this.checkpoint={x:cp,stars:[...this.collected],cleared:[...this.cleared],score:this.score,grindDistance:this.grindDistance,slideCount:this.slideCount};this.events.push({type:'checkpoint'});}}
+  for(const cp of this.level.checkpoints){if(oldX<cp&&this.x>=cp){this.checkpoint={x:cp,elapsed:this.elapsed,stars:[...this.collected],cleared:[...this.cleared],score:this.score,grindDistance:this.grindDistance,slideCount:this.slideCount};this.events.push({type:'checkpoint'});}}
   if(this.x>=this.level.length){this.x=this.level.length;this.state='won';this.cancelInput();this.events.push({type:'win'});}
  }
- get nextAction(){if(this.grinding)return this.rail.transfer?{kind:'transfer',distance:Math.max(0,Math.round((this.rail.x+this.rail.w-this.x)/10))}:{kind:'grinding',distance:0};const rail=this.level.rails.find(r=>r.x>this.x+15&&r.x-this.x<470);const h=this.level.hazards.find(h=>h.x+h.w+16>this.x&&!this.cleared.has(h.id));if(rail&&(!h||rail.x<h.x))return{kind:'rail',distance:Math.max(0,Math.round((rail.x-this.x)/10))};return h?{kind:h.kind,distance:Math.max(0,Math.round((h.x-this.x)/10))}:null;}
+ get nextAction(){if(this.grinding)return this.rail.transfer?{kind:'transfer',distance:Math.max(0,Math.round((this.rail.x+this.rail.w-this.x)/10))}:{kind:'grinding',distance:0};const rail=this.level.rails.find(r=>r.x>this.x+15&&r.x-this.x<470);const h=this.level.hazards.find(h=>h.x+h.w+16>this.x&&!this.cleared.has(h.id));if(rail&&(!h||rail.x<h.x))return{kind:'rail',distance:Math.max(0,Math.round((rail.x-this.x)/10))};if(h?.moverId){const mover=this.level.movers.find(m=>m.id===h.moverId),pose=movingPose(mover,this.elapsed);return{kind:h.kind,distance:Math.max(0,Math.round((pose.x-this.x)/10)),open:pose.open,remaining:pose.remaining};}return h?{kind:h.kind,distance:Math.max(0,Math.round((h.x-this.x)/10))}:null;}
  get distance(){return Math.max(0,Math.floor((this.x-160)/10));}
  get progress(){return Math.max(0,(this.x-160)/(this.level.length-160));}
 }
