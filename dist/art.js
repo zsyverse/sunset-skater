@@ -1,4 +1,5 @@
-import {movingPose} from './movers.js?v=4';
+import {WORLDS,drawScenery,roadTexture} from './scenery.js?v=5';
+import {movingPose} from './movers.js?v=5';
 const TAU=Math.PI*2;
 function poly(c,points,fill){c.fillStyle=fill;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();}
 function line(c,points,color,width=2){c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.lineJoin='round';c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke();}
@@ -42,25 +43,12 @@ export class Art {
  constructor(){this.particles=[];this.t=0;this.camera=0;this.flash=0;}
  burst(x,y,color,n=10){for(let i=0;i<n;i++)this.particles.push({x,y,vx:(Math.random()-.5)*150,vy:-Math.random()*160-25,life:.7,max:.7,color,r:Math.random()*3+2});}
  draw(c,width,height,run,dt,idle=false){this.t+=dt;const l=run.level,w=650*width/height;c.setTransform(width/w,0,0,height/650,0,0);c.clearRect(0,0,w,650);const desired=idle?700:Math.max(0,run.x-w*.23);this.camera=idle?700:this.camera+(desired-this.camera)*Math.min(1,dt*9);if(!idle&&Math.abs(desired-this.camera)>w)this.camera=desired;const cam=this.camera,t=this.t;
- const sky=c.createLinearGradient(0,0,0,430);sky.addColorStop(0,l.sky[0]);sky.addColorStop(1,l.sky[1]);c.fillStyle=sky;c.fillRect(0,0,w,650);
- // Soft sunset disc and its reflection on the sea.
- const sunX=w*.7-cam*.015,sunY=205;circle(c,sunX,sunY,83,(l.night||l.index===2)?'#f4e5bd':'#fff0ba');circle(c,sunX,sunY,100,(l.night||l.index===2)?'#e5dabb0a':'#fff0ba1b');
- c.fillStyle=l.sea;c.fillRect(0,300,w,350);for(let i=0;i<16;i++){let yy=310+i*8,xx=sunX-65-i*2+Math.sin(i*8+t*.3)*18;c.fillStyle=(l.night||l.index===2)?'#d2d4bc38':'#f7e5ad66';c.fillRect(xx,yy,130+i*5,2);}
- // Distant coast, haze, and two parallax layers.
- hill(c,w,cam,.08,335,l.far,3);c.fillStyle=l.sea;c.fillRect(0,365,w,90);for(let i=0;i<14;i++){const xx=((i*153-cam*.2)% (w+180)+w+180)%(w+180)-90;line(c,[[xx,375+(i%4)*14],[xx+45,375+(i%4)*14]],'#f4e6bd33',1);}
- if((l.urban||l.index===1)){for(let i=-1;i<Math.ceil(w/140)+2;i++){let wx=i*140+Math.floor(cam*.2/140)*140;building(c,wx-cam*.2,373,85+(i%3)*10,60+Math.abs(Math.sin(wx))*55,i%2?'#ba8b70':'#c49771');}}
- if((l.night||l.index===2))hill(c,w,cam,.16,375,'#526e77',5);
- // Birds are deliberately small against an open sky.
- for(let i=0;i<4;i++){const bx=((w*.4+i*42-cam*.06+t*2)%(w+100)+w+100)%(w+100),by=170+Math.sin(i*7)*18;line(c,[[bx-6,by-2],[bx,by+1],[bx+6,by-3]],(l.night||l.index===2)?'#f4e4c18a':'#537962aa',1.5);}
- hill(c,w,cam,.3,435,l.hill,1);
- // Palms and coastside buildings sit behind the road.
- for(let i=Math.floor(cam*.6/420)-1;i<Math.ceil((cam*.6+w)/420)+1;i++){const x=i*420-cam*.6+110;const y=454; if((l.night||l.index===2)){line(c,[[x,y],[x,y-145],[x+32,y-145]],l.dark,5);circle(c,x+32,y-144,7,'#f7dd94');circle(c,x+32,y-144,25,'#f7dd9411');}else{palm(c,x,y,.9+(i%2)*.15,l.dark,i%2?1:-1);if(i%3===1)palm(c,x+45,y,.65,l.dark);}}
- // A boardwalk fence adds depth without hiding hazards.
- c.fillStyle=l.dark+'66';c.fillRect(0,447,w,3);for(let x=-(cam*.75%64);x<w;x+=64)c.fillRect(x,444,3,21);
+ drawScenery(c,w,l,cam,t);const world=WORLDS[l.index];
  // Road is split at gaps. Sample its curved ramps for a continuous ride.
  const spans=[];let start=cam-40;for(const g of l.gaps){if(g.x+g.w<cam-40||g.x>cam+w+40)continue;if(g.x>start)spans.push([start,g.x]);start=g.x+g.w;}spans.push([start,cam+w+40]);
  const groundAt=x=>{let y=470;for(const r of l.ramps)if(x>=r.x&&x<=r.x+r.w)y-=Math.sin((x-r.x)/r.w*Math.PI)*r.h;return y;};
- for(const [a,b]of spans){if(a>=b)continue;const pts=[[a-cam,650],[a-cam,groundAt(a)]];for(let x=a+8;x<b;x+=8)pts.push([x-cam,groundAt(x)]);pts.push([b-cam,groundAt(b)],[b-cam,650]);poly(c,pts,l.dark);const edge=pts.slice(1,-1);line(c,edge,'#f9dfa0',9);line(c,edge,'#b7ad72',2);c.save();c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.clip();c.strokeStyle='#fff3be0e';c.lineWidth=1;for(let y=490;y<650;y+=24){c.beginPath();c.moveTo(a-cam,y);c.lineTo(b-cam,y);c.stroke();}for(let x=Math.floor(a/90)*90;x<b;x+=90){c.fillStyle='#d5cda333';c.fillRect(x-cam,514,32,3);}c.restore();}
+ for(const [a,b]of spans){if(a>=b)continue;const pts=[[a-cam,650],[a-cam,groundAt(a)]];for(let x=a+8;x<b;x+=8)pts.push([x-cam,groundAt(x)]);pts.push([b-cam,groundAt(b)],[b-cam,650]);poly(c,pts,world.ground);const edge=pts.slice(1,-1);line(c,edge,world.edge,9);line(c,edge,world.ground+'55',2);c.save();c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.clip();c.strokeStyle='#fff3be0e';c.lineWidth=1;for(let y=490;y<650;y+=24){c.beginPath();c.moveTo(a-cam,y);c.lineTo(b-cam,y);c.stroke();}for(let x=Math.floor(a/90)*90;x<b;x+=90){c.fillStyle='#d5cda333';c.fillRect(x-cam,514,32,3);}roadTexture(c,a,b,cam,l);c.restore();}
+ if(!idle){
  if(l.hard){for(const section of l.sections){const sx=section.x-cam;if(sx>-180&&sx<w+100){const names={slalom:'连跳区',twins:'双重断崖',bridge:'断桥 · 必须滑杆',transfer:'空中换杆',duckjump:'低头 → 起跳',traffic:'动态机关 · 看准时机'};round(c,sx,541,145,27,4,'#f3dbb41f');text(c,names[section.kind],sx+12,560,12,'#f3dfbb','700');}}}
  // Gap warning stripes and road signs.
  for(const g of l.gaps){const x=g.x-cam;if(x<-250||x>w+250)continue;for(let j=0;j<3;j++){line(c,[[x-65+j*15,486],[x-73+j*15,494]],'#e9bc72',4);}line(c,[[x-125,467],[x-125,408]],'#4b6751',4);round(c,x-145,390,40,31,4,'#f3cf7c');text(c,'↗',x-138,413,26,'#3c5942','700');}
@@ -71,6 +59,7 @@ export class Art {
  for(const o of l.obstacles)if(o.x>cam-80&&o.x<cam+w+80)obstacle(c,o,l,cam);
  for(const mover of l.movers||[])if(mover.x>cam-250&&mover.x<cam+w+250)movingArt(c,mover,idle?t:run.elapsed,cam);
  for(const s of l.stars){if(run.collected.has(s.id)||s.x<cam-80||s.x>cam+w+80)continue;const y=s.y+Math.sin(t*3+s.id)*4;circle(c,s.x-cam,y,17,'#ffdb7933');star(c,s.x-cam,y,11,'#fff0ae',Math.sin(t+s.id)*.08);circle(c,s.x-cam-2,y-3,2,'#fff7d5');}
+ }
  const px=idle?w*.65:run.x-cam,py=idle?440:run.y;const air=!run.grounded&&!run.grinding&&!idle;const shadowY=groundAt(idle?cam+px:run.x);if(!l.gaps.some(g=>run.x>=g.x&&run.x<g.x+g.w)||idle){c.save();c.globalAlpha=Math.max(.05,.18-Math.max(0,shadowY-py)*.0006);c.fillStyle='#0e332c';c.beginPath();c.ellipse(px,shadowY+6,idle?49:32,5,0,0,TAU);c.fill();c.restore();}
  if(idle){const rockX=px-95;poly(c,[[rockX,470],[rockX+20,435],[rockX+150,435],[rockX+181,470]],'#637957');line(c,[[rockX+22,435],[rockX+151,435]],'#f5d391',5);}
  skater(c,px,py,{charge:run.charge,air,time:idle?t:run.x/l.speed,scale:idle?1.45:1,crashed:run.state==='crashed',land:run.landPulse,sliding:run.sliding&&!idle,grinding:run.grinding&&!idle});
@@ -80,7 +69,7 @@ export class Art {
  if(!idle&&run.grounded&&run.speed>5&&run.state==='playing'&&Math.random()<.35)this.particles.push({x:run.x-27,y:run.y+3,vx:-25,vy:-8,life:.3,max:.3,color:'#d6cf9d',r:2});
  for(let i=this.particles.length-1;i>=0;i--){const p=this.particles[i];p.life-=dt;if(p.life<=0){this.particles.splice(i,1);continue;}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;c.globalAlpha=p.life/p.max;circle(c,p.x-cam,p.y,p.r,p.color);c.globalAlpha=1;}
  // Small handwritten location detail lives in the scenery.
- if(idle&&w>900){c.save();c.translate(w*.77,410);c.rotate(-.08);text(c,'meet me at sunset',0,0,13,'#fff0c49c');c.restore();}
+ if(idle&&w>900){c.save();c.translate(w*.77,410);c.rotate(-.08);text(c,world.note,0,0,13,'#fff0c49c');c.restore();}
  c.setTransform(1,0,0,1,0,0);
  }
 }
