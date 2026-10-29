@@ -1,6 +1,6 @@
-import {drawCharacter} from './characters.js?v=7';
-import {WORLDS,drawScenery,roadTexture} from './scenery.js?v=7';
-import {movingPose} from './movers.js?v=7';
+import {drawCharacter} from './characters.js?v=8';
+import {WORLDS,drawScenery,roadTexture} from './scenery.js?v=8';
+import {movingPose} from './movers.js?v=8';
 const TAU=Math.PI*2;
 function poly(c,points,fill){c.fillStyle=fill;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();}
 function line(c,points,color,width=2){c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.lineJoin='round';c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke();}
@@ -52,7 +52,7 @@ export class Art {
  }
  const px=idle?w*.65:run.x-cam,py=idle?440:run.y;const air=!run.grounded&&!run.grinding&&!idle;const shadowY=groundAt(idle?cam+px:run.x);if(!l.gaps.some(g=>run.x>=g.x&&run.x<g.x+g.w)||idle){c.save();c.globalAlpha=Math.max(.05,.18-Math.max(0,shadowY-py)*.0006);c.fillStyle='#0e332c';c.beginPath();c.ellipse(px,shadowY+6,idle?49:32,5,0,0,TAU);c.fill();c.restore();}
  if(idle){const rockX=px-95;poly(c,[[rockX,470],[rockX+20,435],[rockX+150,435],[rockX+181,470]],'#637957');line(c,[[rockX+22,435],[rockX+151,435]],'#f5d391',5);}
- drawCharacter(c,px,py,{character:this.character,charge:run.charge,air,time:idle?t:run.x/l.speed,scale:idle?1.45:1,crashed:run.state==='crashed',land:run.landPulse,sliding:run.sliding&&!idle,grinding:run.grinding&&!idle});
+ drawCharacter(c,px,py,{character:this.character,holding:run.holding&&!idle,won:run.state==='won',braking:run.brakeHeld&&run.grounded&&!idle,charge:run.charge,air,time:idle?t:run.x/l.speed,scale:idle?1.45:1,crashed:run.state==='crashed',land:run.landPulse,sliding:run.sliding&&!idle,grinding:run.grinding&&!idle});
  if(!idle&&run.grinding&&run.state==='playing'){for(let i=0;i<2;i++)this.particles.push({x:run.x-15,y:run.y+4,vx:-70-Math.random()*80,vy:-Math.random()*55,life:.35,max:.35,color:'#ffdb70',r:2});}
  if(!idle&&run.sliding){for(let i=0;i<3;i++)line(c,[[px-55-i*12,py-13-i*8],[px-37-i*12,py-13-i*8]],'#d6edc477',2);}
  if(!idle&&run.brakeHeld&&run.grounded){line(c,[[px-52,py+9],[px-26,py+9]],'#f5d696',2);round(c,px-33,py-153,65,23,5,'#f4c98e');text(c,run.speed<5?'已停稳':'刹车中',px-23,py-137,11,'#5a5940','700');}

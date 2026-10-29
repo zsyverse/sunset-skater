@@ -1,5 +1,5 @@
-import {movingPose,movingHit} from './movers.js?v=7';
-import {CHALLENGES,buildChallenge} from './challenges.js?v=7';
+import {movingPose,movingHit} from './movers.js?v=8';
+import {CHALLENGES,buildChallenge} from './challenges.js?v=8';
 export const ROUTES=[
  {name:'落日海岸',en:'SUNSET COAST',length:9000,speed:280,sky:['#f7ce9c','#fbe7b7'],sea:'#8eb9a5',far:'#8ba99a',hill:'#618b76',dark:'#2e5848'},
  {name:'橘子小镇',en:'TANGERINE TOWN',length:10500,speed:305,sky:['#eeb093','#f5d6a0'],sea:'#a2b6a0',far:'#b29b84',hill:'#897a5b',dark:'#4d6049'},
