@@ -1,5 +1,7 @@
 # 角色素材来源与适配
 
+- 当前奶蛙使用 V9 修正版，调整绿眼圈、长头身和夸张笑脸。新版素材、网页来源和提示词见 [奶蛙形象修正](naiwa-v9-prompt.md)。以下记录保留早期版本制作过程。
+
 - 奶龙原图：https://www.nailongsol.fun/static/media/s2.021de792d76f3625c2ee.png 。原图自带透明度，未重绘。游戏使用相同 PNG。
 - 奶蛙参考原图：https://raw.githubusercontent.com/Marshall-Jimmy/naiwa-universe/master/public/images/poseNotShot.png 。来源页：https://github.com/Marshall-Jimmy/naiwa-universe 。原始图片保存在 naiwa-pose.png。
 - 奶蛙使用内置 image_gen 去背景，结果在 dist/assets/characters/naiwa.png；保留透明 alpha。基于网络素材提取，并非官方动画动作帧。

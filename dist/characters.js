@@ -1,16 +1,16 @@
-import {POSES,poseFor} from './character-poses.js?v=8';
+import {POSES,poseFor} from './character-poses.js?v=9';
 export {POSES,poseFor};
 export const CHARACTERS=[
  {id:'nailong',name:'奶龙',tag:'圆肚皮 · 快乐出发',src:'assets/characters/nailong.png',sheet:'assets/characters/nailong-expressions.png',board:'#ea7942'},
- {id:'naiwa',name:'奶蛙',tag:'大眼睛 · 一起撒野',src:'assets/characters/naiwa.png',sheet:'assets/characters/naiwa-expressions.png',board:'#81b778'}
+ {id:'naiwa',name:'奶蛙',tag:'绿眼圈 · 魔性大笑',sheet:'assets/characters/naiwa-expressions-v2.png',board:'#81b778',grid:{width:1278,height:1230,x:[0,426,852,1278],y:[0,410,810,1230]}}
 ];
 export function characterFor(id){return CHARACTERS.find(c=>c.id===id)||CHARACTERS[0];}
 const pictures=new Map();
 // Locate each sprite in its atlas cell. Only the large connected silhouette defines
 // its bounds, so transparent padding or isolated antialias specks cannot shift its feet.
-function frameBounds(img){
+function frameBounds(img,grid={width:1254,height:1254,x:[0,430,840,1254],y:[0,425,820,1254]}){
  const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);const {data}=ctx.getImageData(0,0,img.width,img.height);
- const xs=[0,430,840,1254].map(x=>Math.round(x*img.width/1254)),ys=[0,425,820,1254].map(y=>Math.round(y*img.height/1254));
+ const xs=grid.x.map(x=>Math.round(x*img.width/grid.width)),ys=grid.y.map(y=>Math.round(y*img.height/grid.height));
  return POSES.map((pose,index)=>{const col=index%3,row=Math.floor(index/3),x0=xs[col],y0=ys[row],w=xs[col+1]-x0,h=ys[row+1]-y0,seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let best=null;
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){const start=py*w+px;if(seen[start]||data[((py+y0)*img.width+px+x0)*4+3]<96)continue;let head=0,tail=1,minX=px,maxX=px,minY=py,maxY=py;queue[0]=start;seen[start]=1;
    while(head<tail){const at=queue[head++],x=at%w,y=Math.floor(at/w);minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);for(const [nx,ny]of [[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){if(nx<0||nx>=w||ny<0||ny>=h)continue;const next=ny*w+nx;if(!seen[next]&&data[((ny+y0)*img.width+nx+x0)*4+3]>=96){seen[next]=1;queue[tail++]=next;}}}
@@ -19,7 +19,7 @@ function frameBounds(img){
   if(!best||best.count<300)throw new Error(`Missing expression: ${pose.id}`);const sx=Math.max(0,best.minX-2),sy=Math.max(0,best.minY-2),right=Math.min(w,best.maxX+3),bottom=Math.min(h,best.maxY+3);return [x0+sx,y0+sy,right-sx,bottom-sy];
  });
 }
-export async function loadCharacters(){await Promise.all(CHARACTERS.map(character=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{try{pictures.set(character.id,{img,frames:frameBounds(img)});resolve();}catch(error){reject(error);}};img.onerror=()=>reject(new Error(`${character.name}表情加载失败`));img.src=character.sheet;})));}
+export async function loadCharacters(){await Promise.all(CHARACTERS.map(character=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{try{pictures.set(character.id,{img,frames:frameBounds(img,character.grid)});resolve();}catch(error){reject(error);}};img.onerror=()=>reject(new Error(`${character.name}表情加载失败`));img.src=character.sheet;})));}
 export function drawCharacter(c,x,y,options={}){
  const {character='nailong',charge=0,air=false,time=0,scale=1,crashed=false,land=0,sliding=false,grinding=false,board=true}=options;
  const config=characterFor(character),picture=pictures.get(config.id);if(!picture)return;

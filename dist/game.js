@@ -1,8 +1,8 @@
-import {CHARACTERS,characterFor,loadCharacters,POSES,poseFor,paintPortrait} from './characters.js?v=8';
-import {WORLDS,drawPostcard} from './scenery.js?v=8';
-import {Run,ROUTES} from './engine.js?v=8';
-import {Art} from './art.js?v=8';
-import {GentleMusic} from './music.js?v=8';
+import {CHARACTERS,characterFor,loadCharacters,POSES,poseFor,paintPortrait} from './characters.js?v=9';
+import {WORLDS,drawPostcard} from './scenery.js?v=9';
+import {Run,ROUTES} from './engine.js?v=9';
+import {Art} from './art.js?v=9';
+import {GentleMusic} from './music.js?v=9';
 const $=id=>document.getElementById(id);
 const DIFFICULTIES=['入门','简单','普通','进阶','困难','专家','大师','极限'];
 let charactersReady=false;
@@ -63,4 +63,4 @@ $('expression-grid').innerHTML=POSES.map(p=>`<figure><canvas data-expression="${
 $('expressions-open').onclick=()=>{if(run.state==='playing')pause();renderExpressions();$('expressions').showModal();};$('expressions-close').onclick=()=>$('expressions').close();document.querySelectorAll('[data-gallery-character]').forEach(button=>button.onclick=()=>chooseCharacter(button.dataset.galleryCharacter));
 selectRoute(0);
 $('start').disabled=true;
-if(!window.Phaser){$('start').textContent='引擎未加载，请刷新重试';$('start').disabled=true;}else loadCharacters().then(()=>{charactersReady=true;renderExpressions();$('expressions-open').disabled=false;new Phaser.Game({type:Phaser.CANVAS,parent:'game',backgroundColor:'#f7ce9c',banner:false,audio:{noAudio:true},scale:{mode:Phaser.Scale.RESIZE,width:$('game').clientWidth,height:$('game').clientHeight},scene:CoastScene,disableContextMenu:true,fps:{target:60,limit:60},input:{activePointers:2}});$('start').disabled=false;}).catch(()=>{$('start').textContent='角色加载失败，点击重试';$('start').disabled=false;$('start').onclick=()=>location.reload();});
+if(!window.Phaser){$('start').textContent='引擎未加载，请刷新重试';$('start').disabled=true;}else loadCharacters().then(()=>{charactersReady=true;document.querySelectorAll('[data-character-portrait]').forEach(canvas=>paintPortrait(canvas,canvas.dataset.characterPortrait,'ride'));renderExpressions();$('expressions-open').disabled=false;new Phaser.Game({type:Phaser.CANVAS,parent:'game',backgroundColor:'#f7ce9c',banner:false,audio:{noAudio:true},scale:{mode:Phaser.Scale.RESIZE,width:$('game').clientWidth,height:$('game').clientHeight},scene:CoastScene,disableContextMenu:true,fps:{target:60,limit:60},input:{activePointers:2}});$('start').disabled=false;}).catch(()=>{$('start').textContent='角色加载失败，点击重试';$('start').disabled=false;$('start').onclick=()=>location.reload();});

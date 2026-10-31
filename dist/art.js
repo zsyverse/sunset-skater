@@ -1,6 +1,6 @@
-import {drawCharacter} from './characters.js?v=8';
-import {WORLDS,drawScenery,roadTexture} from './scenery.js?v=8';
-import {movingPose} from './movers.js?v=8';
+import {drawCharacter} from './characters.js?v=9';
+import {WORLDS,drawScenery,roadTexture} from './scenery.js?v=9';
+import {movingPose} from './movers.js?v=9';
 const TAU=Math.PI*2;
 function poly(c,points,fill){c.fillStyle=fill;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();}
 function line(c,points,color,width=2){c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.lineJoin='round';c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke();}
