@@ -22,3 +22,129 @@ body{transition:background .35s,color .35s}.intro>p{max-width:360px}.world-bar{d
 .expressions-open{display:block;padding:0;margin-top:9px;border:0;background:transparent;color:var(--orange);font-size:10px;text-decoration:underline;text-underline-offset:3px}.expressions-dialog{width:min(720px,94vw);max-height:90dvh;overflow-y:auto;padding:28px}.expressions-dialog h2{margin:12px 0 4px;font-size:26px}.expressions-dialog>p{margin:9px 0 16px;font-size:11px}.expression-tabs{display:flex;gap:10px;margin-bottom:16px}.expression-tabs button{background:#f3efde;border:1px solid #d3dac7;color:#52614c;padding:8px 25px;border-radius:20px;font-size:12px}.expression-tabs button[aria-pressed=true]{background:#eaba58;color:#513e20;border-color:#dbaa4d}.expression-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.expression-grid figure{margin:0;text-align:center;background:#f4efdf;border-radius:12px;padding:8px 8px 13px}.expression-grid canvas{display:block;width:100%;aspect-ratio:220/190}.expression-grid figcaption b{display:block;font-size:12px;color:#485640}.expression-grid figcaption span{display:block;font-size:10px;color:#8e8e73;margin-top:6px}.modal-expression{display:block;width:110px;height:95px;margin:-20px auto -6px;object-fit:contain}
 @media(max-width:640px){.character-heading>small{bottom:25px}.expressions-open{font-size:9px;margin-top:8px}.expressions-dialog{padding:23px 14px 18px}.expressions-dialog h2{font-size:22px}.expression-grid{gap:7px}.expression-grid figure{padding:5px 3px 10px;border-radius:8px}.expression-grid figcaption b{font-size:10px}.expression-grid figcaption span{font-size:8px}.modal-expression{width:88px;height:76px;margin:-16px auto -6px}.modal-card:has(.modal-expression:not([hidden])){padding-top:24px}.modal-card:has(.modal-expression:not([hidden])) h2{font-size:23px;margin-top:10px}}
 @media(max-height:550px) and (orientation:landscape){.modal-expression{width:72px;height:62px;margin:-12px auto -8px}.modal-card:has(.modal-expression:not([hidden])){padding:17px}.modal-card:has(.modal-expression:not([hidden])) h2{font-size:22px;margin:7px 0}.modal-card:has(.modal-expression:not([hidden])) p{margin:5px 0 12px}}
+
+.result-stats{flex-wrap:wrap;row-gap:14px}.result-stats .result-rating{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:10px}.result-rating b{font-size:30px;letter-spacing:4px;color:#e9a93a}.result-rating em{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:var(--orange);border-radius:99px;padding:3px 10px}.result-stats b small{font-size:13px;opacity:.6}
+.modal-card{max-height:calc(100% - 16px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:640px),(max-height:550px) and (orientation:landscape){.result-stats{row-gap:6px;padding-bottom:10px}.result-stats b{font-size:20px}.result-rating b{font-size:22px;letter-spacing:2px}.result-stats>div:last-child:not(.result-rating){display:none}.modal-card:has(.result-stats:not([hidden])) p{display:none}}
+/* V11 · countdown, achievements, daily ride, locks, career */
+.countdown{position:absolute;inset:0;z-index:5;display:grid;place-items:center;pointer-events:none;font-size:clamp(64px,14vw,150px);font-weight:850;color:#fff6dc;text-shadow:0 6px 0 #29473d55,0 0 40px #29473d55;letter-spacing:-3px}
+.countdown.pop{animation:count-pop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes count-pop{0%{transform:scale(.4);opacity:0}35%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:.92}}
+.achievement-banner{position:absolute;z-index:8;top:96px;right:24px;display:flex;align-items:center;gap:12px;padding:10px 18px 10px 12px;border-radius:14px;background:#294d3ff2;color:#fff0d2;box-shadow:0 10px 30px #19382c40;transform:translateY(-12px);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none}
+.achievement-banner.show{opacity:1;transform:none}
+.achievement-banner>span{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--orange);font-size:18px;color:#fff}
+.achievement-banner small{display:block;font-size:10px;letter-spacing:1px;color:#b9d9c5}
+.achievement-banner b{font-size:14px}
+.daily-card{display:flex;width:100%;gap:0;margin-bottom:19px;padding:8px;border:1px dashed #d79a7b;border-radius:12px;text-align:left;background:linear-gradient(100deg,#fff4dc,#fff9ee 60%);color:inherit;transition:border-color .2s,transform .2s}
+.daily-card:hover{transform:translateY(-2px);border-color:var(--orange)}
+.daily-card.selected{border-style:solid;border-color:var(--orange);box-shadow:0 0 0 1px #e8775133}
+.daily-card .daily-art{width:30%;min-width:120px;height:auto;min-height:110px}
+.daily-art canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.daily-date{position:absolute;left:10px;bottom:8px;z-index:3;padding:3px 9px;border-radius:5px;background:#29473dcc;color:#fff3d6;font-size:11px;font-weight:700}
+.daily-detail{flex:1;padding:10px 12px 8px 18px}
+.daily-detail h3{font-size:18px;margin:8px 0}.daily-detail h3 i{float:right;font-style:normal;font-weight:400}
+.daily-detail p{font-size:11px;color:#88907d;margin:6px 0 12px;line-height:1.6}
+.daily-detail>div{display:flex;gap:14px;font-size:10px;color:#89907e}.daily-best{margin-left:auto;color:var(--orange);font-weight:700}
+.route-card.locked .route-art canvas{filter:grayscale(.75) brightness(.8)}
+.route-card.locked h3,.route-card.locked .route-detail>div{opacity:.55}
+.route-lock{position:absolute;inset:auto 8px 8px auto;z-index:4;padding:4px 9px;border-radius:6px;background:#263e37e6;color:#fff3d6;font-size:10px;font-weight:700}
+.result-rating .daily-distance{font-size:34px;letter-spacing:-1px;color:var(--orange)}
+.career-dialog{width:min(760px,94vw);max-height:90dvh;overflow-y:auto}
+.career-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}
+.career-progress>div{padding:12px 14px;border-radius:10px;background:#f5ecd6}
+.career-progress small{display:block;font-size:10px;color:#7f876f}.career-progress b{display:block;font-size:22px;margin:4px 0 8px}
+.career-progress i{display:block;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--orange) var(--p),#e2d7bd var(--p))}
+.career-totals{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center}
+.career-totals b{display:block;font-size:17px}.career-totals span{font-size:10px;color:#7f876f}
+.career-heading{font-size:16px;margin:24px 0 10px}.career-heading span{font-size:12px;color:var(--orange);margin-left:6px}
+.achievement-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.achievement{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #e3dcc6;border-radius:10px;opacity:.55}
+.achievement.earned{opacity:1;background:#fff3dc;border-color:#ebc79f}
+.achievement>span{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e2d9c2;color:#8c8a77;font-size:16px;font-weight:800}
+.achievement.earned>span{background:var(--orange);color:#fff}
+.achievement b{display:block;font-size:13px}.achievement small{font-size:10px;color:#7f876f}
+.reset-progress{margin-top:22px;border:1px solid #e3b6a3;border-radius:8px;background:none;color:#b8573a;padding:8px 14px;font-size:12px}
+@media(max-width:640px){.achievement-banner{top:64px;right:10px;left:10px}.daily-card{display:block;padding:5px}.daily-card .daily-art{width:100%;min-height:80px}.daily-detail{padding:10px 4px 6px}.daily-detail p{display:none}.daily-detail h3{font-size:14px}.route-lock{font-size:8px;padding:3px 6px;inset:auto 4px 4px auto}.career-progress{gap:6px}.career-progress>div{padding:8px}.career-progress b{font-size:15px}.career-totals{grid-template-columns:repeat(4,1fr);row-gap:12px}.achievement-grid{grid-template-columns:1fr}}
+
+.season-divider{grid-column:1/-1;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:14px 0 2px;padding-top:16px;border-top:1px dashed #d8c8b4}.season-divider b{font-size:17px;color:var(--ink)}.season-divider span{font-size:11px;color:#8b9185}
+@media(max-width:640px){.season-divider b{font-size:14px}.season-divider span{font-size:9px}}
+/* V13 · playtest fixes */
+.game-shell{max-height:max(320px,calc(100dvh - 24px))}
+.game-shell:fullscreen{max-height:none}
+.game-shell.no-brake #brake,body.no-brake .brake-legend{display:none}
+.modal-card:has(.result-stats:not([hidden])){width:min(500px,94%)}
+.result-stats{gap:24px}
+.modal-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:2px;margin-top:10px}
+.modal-card .modal-links .secondary{width:auto;margin:0;padding:8px 12px;border-radius:8px}
+.modal-card .modal-links .secondary:hover{background:#f1e6cc;color:var(--ink)}
+.modal-links .secondary+.secondary{position:relative}
+.modal-links .secondary+.secondary:before{content:'';position:absolute;left:-2px;top:50%;width:3px;height:3px;border-radius:50%;background:#b6bba9;transform:translateY(-50%)}
+.modal-achievements{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin:-6px 0 16px}
+.modal-achievements small{width:100%;font-size:10px;letter-spacing:2px;color:#8a927f}
+.modal-achievements span{display:inline-flex;align-items:center;gap:7px;background:#294d3f;color:#fff0d2;border-radius:99px;padding:4px 12px 4px 4px;font-size:12px;font-weight:700}
+.modal-achievements i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--orange);font-style:normal;font-size:12px;color:#fff}
+.achievement-banner{top:180px}
+.game-shell:has(.modal:not([hidden])) .achievement-banner{opacity:0}
+.coach{position:absolute;z-index:5;left:50%;top:30%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:14px 24px 14px 14px;border-radius:18px;background:#fff8e8f2;color:var(--ink);box-shadow:0 14px 40px #1a362d33;pointer-events:none;max-width:92%;animation:coach-in .25s ease-out both}
+.coach small{display:block;font-size:10px;letter-spacing:1px;color:var(--orange);font-weight:700}
+.coach b{display:block;font-size:21px;margin:3px 0 2px;white-space:nowrap}
+.coach #coach-hint{font-size:12px;color:#6d785e}
+.coach-key{min-width:66px;height:54px;padding:0 14px;display:grid;place-items:center;border-radius:12px;background:var(--ink);color:#fff3d6;font-weight:800;font-size:17px;box-shadow:0 5px 0 #0f2a22;animation:coach-press 1s ease-in-out infinite;flex:none}
+.coach.holding .coach-key{animation:none;transform:translateY(4px);box-shadow:0 1px 0 #0f2a22;background:var(--orange)}
+.coach[data-kind=slide] .coach-key{animation-duration:1.6s}
+@keyframes coach-press{0%,55%,100%{transform:none;box-shadow:0 5px 0 #0f2a22}25%{transform:translateY(4px);box-shadow:0 1px 0 #0f2a22}}
+@keyframes coach-in{from{opacity:0;transform:translate(-50%,8px)}}
+.game-shell.coaching:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 140px #1d3a3170}
+.game-shell.coaching .toast{opacity:0}
+.rotate-hint{display:none}
+@media(orientation:portrait) and (pointer:coarse) and (max-width:640px){.rotate-hint{display:block;font-size:9px;margin-top:6px;color:#6d785e}.night-scene .rotate-hint{color:#e2d6dc}}
+@media(max-width:640px){
+ .achievement-banner{top:8px;left:10px;right:10px}
+ .coach{top:34%;gap:10px;padding:10px 14px 10px 10px;border-radius:14px}
+ .coach b{font-size:16px}
+ .coach #coach-hint{font-size:10px}
+ .coach-key{min-width:52px;height:44px;font-size:13px;padding:0 10px}
+ .modal-card .modal-links .secondary{padding:6px 8px}
+}
+@media(max-height:550px) and (orientation:landscape){
+ .game-shell{height:calc(100dvh - 16px);min-height:300px}
+ .cover-copy{top:17%}
+ .cover h2{font-size:40px;letter-spacing:-2px;margin:10px 0;max-width:none}
+ .cover h2 br{display:none}
+ .cover p,.start-hint{display:none}
+ .cover .primary{margin-top:6px}
+ .achievement-banner{top:8px;left:auto;right:12px}
+ .coach{top:24%}
+ .modal-achievements{margin:-4px 0 10px}
+}
+.coach.now{background:#ffe9b8f5}
+.coach.now b{color:var(--orange)}
+.coach.now .coach-key{background:var(--orange);animation-duration:.45s}
+.modal-card:has(.result-stats:not([hidden])){padding-top:26px;padding-bottom:20px}
+.modal-card:has(.result-stats:not([hidden])) h2{margin:6px 0 4px}
+.modal-card:has(.result-stats:not([hidden])) p{margin-bottom:10px}
+.modal-card:has(.result-stats:not([hidden])) .result-stats{padding:6px 0 16px;row-gap:10px}
+@media(max-width:640px),(max-height:550px) and (orientation:landscape){
+ .modal-card:has(.result-stats:not([hidden])) .eyebrow,.modal-achievements small{display:none}
+ .modal-card:has(.result-stats:not([hidden])){padding:14px 16px 10px}
+ .modal-card:has(.result-stats:not([hidden])) .result-stats{padding:2px 0 10px}
+ .modal-achievements{margin:-2px 0 10px}
+ .modal-achievements span{font-size:11px;padding:3px 10px 3px 3px}
+ .modal-achievements i{width:18px;height:18px;font-size:10px}
+ .modal-card .modal-links{margin-top:4px}
+}
+.modal-achievements span.unlock{background:#f3e3bd;color:#5a4a26}
+.modal-achievements span.unlock i{background:#fff8e6}
+
+/* V14 · crisp canvas: Phaser sizes the backing store in device pixels, CSS keeps it at the box size */
+#game canvas{width:100%!important;height:100%!important}
+/* V14 · two-thumb touch layout: slide in the left corner, brake + jump on the right */
+@media (pointer:coarse){
+.play-controls{left:max(18px,env(safe-area-inset-left));right:max(18px,env(safe-area-inset-right));justify-content:flex-end}
+#slide{order:-1;margin-right:auto}
+#brake{margin-right:0}
+}
+@media (pointer:coarse) and (max-width:640px){
+.play-controls .charge-hint{left:auto;right:0;bottom:92px;text-align:right}
+.play-controls .charge-hint>span{margin-left:auto}
+}

@@ -1,4 +1,4 @@
-import {POSES,poseFor} from './character-poses.js?v=9';
+import {POSES,poseFor} from './character-poses.js?v=14';
 export {POSES,poseFor};
 export const CHARACTERS=[
  {id:'nailong',name:'奶龙',tag:'圆肚皮 · 快乐出发',src:'assets/characters/nailong.png',sheet:'assets/characters/nailong-expressions.png',board:'#ea7942'},
